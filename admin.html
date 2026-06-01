@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>七夕报名 - 管理后台</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #333;
+      background: linear-gradient(135deg, #f7f5ff 0%, #fff0f7 100%);
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 24px;
+      color: #b83280;
+    }
+
+    .back-link {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #b83280;
+      text-decoration: none;
+      border: 1px solid #ffd1e4;
+      background: #fff;
+    }
+
+    .auth-section {
+      margin-bottom: 24px;
+      padding: 20px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(184, 50, 128, 0.08);
+    }
+
+    .auth-input {
+      width: 100%;
+      max-width: 320px;
+      padding: 12px 14px;
+      border: 1px solid #ffd1e4;
+      border-radius: 12px;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat {
+      padding: 20px 18px;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(184, 50, 128, 0.08);
+    }
+
+    .stat-title {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #b83280;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, #b83280, #ff6b9d);
+    }
+
+    .btn-danger {
+      color: #fff;
+      background: #ff5577;
+    }
+
+    .btn-ghost {
+      color: #b83280;
+      background: #fff;
+      border: 1px solid #ffd1e4;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(184, 50, 128, 0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid #f5f0f4;
+      font-size: 14px;
+    }
+
+    th {
+      background: #fff9fb;
+      color: #886a84;
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .tag {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #fff0f7;
+      color: #b83280;
+    }
+
+    .empty {
+      padding: 48px 16px;
+      text-align: center;
+      color: #999;
+    }
+
+    .error {
+      padding: 16px;
+      background: #ffeef0;
+      color: #cc3344;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>七夕报名 - 管理后台</h1>
+      <a href="index.html" class="back-link">← 返回报名页</a>
+    </header>
+
+    <section class="auth-section" id="authSection">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <input type="password" id="passwordInput" class="auth-input" placeholder="请输入管理密码（默认：qixi2026）" />
+        <button class="btn btn-primary" id="authBtn">登录</button>
+      </div>
+    </section>
+
+    <div id="errorSection" class="error" style="display: none;"></div>
+
+    <div id="adminContent" style="display: none;">
+      <section class="stats">
+        <div class="stat">
+          <div class="stat-title">报名总人数</div>
+          <div class="stat-value" id="totalCount">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">今日报名</div>
+          <div class="stat-value" id="todayCount">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">数据来源</div>
+          <div class="stat-value" style="font-size: 18px;">本地存储</div>
+        </div>
+      </section>
+
+      <section class="toolbar">
+        <span style="font-size: 14px; color: #666;">
+          <strong>说明：</strong>数据保存在当前浏览器本地，部署后可以统一保存
+        </span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-ghost" id="refreshBtn">刷新</button>
+          <button class="btn btn-ghost" id="exportBtn">导出 JSON</button>
+          <button class="btn btn-danger" id="clearBtn">清空数据</button>
+        </div>
+      </section>
+
+      <section class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>姓名</th>
+              <th>手机号</th>
+              <th>人数</th>
+              <th>活动偏好</th>
+              <th>备注</th>
+              <th>报名时间</th>
+            </tr>
+          </thead>
+          <tbody id="recordsBody">
+          </tbody>
+        </table>
+        <div class="empty" id="emptyState">
+          暂无报名数据，先去报名页试试吧！
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = 'qixi2026';
+    let records = [];
+
+    const authSection = document.getElementById('authSection');
+    const adminContent = document.getElementById('adminContent');
+    const errorSection = document.getElementById('errorSection');
+    const passwordInput = document.getElementById('passwordInput');
+    const authBtn = document.getElementById('authBtn');
+    const recordsBody = document.getElementById('recordsBody');
+    const emptyState = document.getElementById('emptyState');
+    const totalCountEl = document.getElementById('totalCount');
+    const todayCountEl = document.getElementById('todayCount');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    function showError(msg) {
+      errorSection.textContent = msg;
+      errorSection.style.display = 'block';
+      setTimeout(() => { errorSection.style.display = 'none'; }, 4000);
+    }
+
+    function getRecords() {
+      try {
+        const stored = localStorage.getItem('qixi_signup_records');
+        if (stored) return JSON.parse(stored);
+        return [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function render() {
+      recordsBody.innerHTML = '';
+
+      if (records.length === 0) {
+        emptyState.style.display = 'block';
+        totalCountEl.textContent = '0';
+        todayCountEl.textContent = '0';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      totalCountEl.textContent = String(records.length);
+
+      const today = new Date().toLocaleDateString('zh-CN');
+      let todayCount = 0;
+
+      records.forEach(record => {
+        const tr = document.createElement('tr');
+        let submittedDate = '';
+        if (record.createdAt) {
+          submittedDate = new Date(record.createdAt).toLocaleDateString('zh-CN');
+          if (submittedDate === today) {
+            todayCount++;
+          }
+        }
+
+        tr.innerHTML = `
+          <td><strong>${record.name || '-'}</strong></td>
+          <td>${record.phone || '-'}</td>
+          <td>${record.people || '-'} 人</td>
+          <td><span class="tag">${record.interest || '-'}</span></td>
+          <td>${record.message || '-'}</td>
+          <td>${record.createdAt || '-'}</td>
+        `;
+        recordsBody.appendChild(tr);
+      });
+
+      todayCountEl.textContent = String(todayCount);
+    }
+
+    authBtn.addEventListener('click', () => {
+      const pwd = passwordInput.value.trim();
+      if (!pwd) {
+        showError('请输入管理密码');
+        return;
+      }
+      if (pwd !== ADMIN_PASSWORD) {
+        showError('密码错误');
+        return;
+      }
+      authSection.style.display = 'none';
+      adminContent.style.display = 'block';
+      records = getRecords();
+      render();
+    });
+
+    refreshBtn.addEventListener('click', () => {
+      records = getRecords();
+      render();
+    });
+
+    exportBtn.addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `qixi-signup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    clearBtn.addEventListener('click', () => {
+      if (!confirm('确定要清空所有报名数据吗？此操作不可恢复！')) return;
+      localStorage.removeItem('qixi_signup_records');
+      records = [];
+      render();
+    });
+  </script>
+</body>
+</html>
